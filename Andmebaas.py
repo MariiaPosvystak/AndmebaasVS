@@ -79,6 +79,7 @@ def loe_tabel(tabel:str):
             conn.close()
             print("Ühendus suleti")
 def validate_data():
+    global entries
     title = entries["Pealkiri"].get()
     release_year = entries["Aasta"].get()
     rating = entries["Reiting"].get()
@@ -96,6 +97,7 @@ def validate_data():
     tk.messagebox.showinfo("Edu", "Andmed on kehtivad!")
     return True
 def insert_data():
+    global entries
     if validate_data():
         connection = sqlite3.connect("movies.db")
         cursor = connection.cursor()
@@ -123,12 +125,14 @@ def insert_data():
 def clear_entries():
     for entry in entries.values():
         entry.delete(0, tk.END)
+    load_data_from_db(tree, search_query="")
 
 create_tabel()
 täida_tabel()
 # loe_tabel("movies")
 
 def lisa_andmed ():
+    global entries
     # Loo Tkinteri aken
     root = tk.Tk()
     root.title("Filmi andmete sisestamine")
@@ -167,19 +171,19 @@ def load_data_from_db(tree):
 def on_search():
     search_query = search_entry.get()
     load_data_from_db(tree, search_query)
-def load_data_from_db(tree, search_query=""):
-    for item in tree.get_children():
-        tree.delete(item)
-    conn = sqlite3.connect('movies.db')
-    cursor = conn.cursor()
-    if search_query:
-        cursor.execute("SELECT title, director, release_year, genre, duration, rating, language, country, description FROM movies WHERE title LIKE ?", ('%' + search_query + '%',))
-    else:
-        cursor.execute("SELECT title, director, release_year, genre, duration, rating, language, country, description FROM movies")
-    rows = cursor.fetchall()
-    for row in rows:
-        tree.insert("", "end", values=row)
-    conn.close()
+# def load_data_from_db(tree, search_query=""):
+#     for item in tree.get_children():
+#         tree.delete(item)
+#     conn = sqlite3.connect('movies.db')
+#     cursor = conn.cursor()
+#     if search_query:
+#         cursor.execute("SELECT title, director, release_year, genre, duration, rating, language, country, description FROM movies WHERE title LIKE ?", ('%' + search_query + '%',))
+#     else:
+#         cursor.execute("SELECT title, director, release_year, genre, duration, rating, language, country, description FROM movies")
+#     rows = cursor.fetchall()
+#     for row in rows:
+#         tree.insert("", "end", values=row)
+#     conn.close()
 def load_data_from_db(tree, search_query=""):
     # Puhasta Treeview tabel enne uute andmete lisamist
     for item in tree.get_children():
@@ -273,6 +277,30 @@ def update_record(record_id, entries, window):
     window.destroy()
 
     messagebox.showinfo("Salvestamine", "Andmed on edukalt uuendatud!")
+def on_delete():
+    selected_item = tree.selection()  # Võta valitud rida
+    if selected_item:
+        record_id = selected_item[0]  # iid (ID)
+        confirm = messagebox.askyesno("Kinnita kustutamine", "Kas oled kindel, et soovid selle rea kustutada?")
+        if confirm:
+            try:
+                # Loo andmebaasi ühendus
+                conn = sqlite3.connect('movies.db')
+                cursor = conn.cursor()
+               
+                # Kustuta kirje
+                cursor.execute("DELETE FROM movies WHERE id=?", (record_id,))
+                conn.commit()
+                conn.close()
+               
+                # Värskenda Treeview tabelit
+                load_data_from_db(tree)
+               
+                messagebox.showinfo("Edukalt kustutatud", "Rida on edukalt kustutatud!")
+            except sqlite3.Error as e:
+                messagebox.showerror("Viga", f"Andmebaasi viga: {e}")
+    else:
+        messagebox.showwarning("Valik puudub", "Palun vali kõigepealt rida!")
 
 root = tk.Tk()
 root.title("Filmid")
@@ -290,6 +318,12 @@ search_button = tk.Button(search_frame, text="Otsi", command=on_search)
 search_button.pack(side=tk.LEFT)
 
 lisa_button=tk.Button(search_frame, text="Lisa Andmeid", command=lisa_andmed)
+lisa_button.pack(side=tk.LEFT, padx=10)
+
+update_button = tk.Button(search_frame, text="Uuenda", command=on_update)
+update_button.pack(side=tk.LEFT, padx=10)
+
+lisa_button=tk.Button(search_frame, text="Kustuta", command=on_delete)
 lisa_button.pack(side=tk.LEFT, padx=10)
 
 frame = tk.Frame(root)
@@ -335,10 +369,3 @@ root.mainloop()
 # # Käivita Tkinteri tsükkel
 # root.mainloop()
 #------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
