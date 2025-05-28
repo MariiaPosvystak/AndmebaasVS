@@ -5,39 +5,137 @@ from tkinter import ttk
 
 global entries
 
+table_languages="""
+CREATE TABLE IF NOT EXISTS languages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT UNIQUE NOT NULL
+);"""
+insert_into_languages="""
+INSERT INTO languages (name) VALUES
+(USA),(UK),(Eesti),(Español),(Український),(Русский),(Deutsch),(Français),(Polski),(Italiano),(한국어),(中文)"""
+table_countries="""
+CREATE TABLE IF NOT EXISTS countries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT UNIQUE NOT NULL
+);"""
+insert_into_countries="""
+INSERT INTO countries (name) VALUES
+(English),(Estonia),(Spain),(Ukraine),(Russia),(Germany),(France),(Poland),(Italy),(Korea),(China)"""
+table_genre="""
+CREATE TABLE IF NOT EXISTS genres (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT UNIQUE NOT NULL
+);"""
+insert_into_genre="""
+INSERT INTO genres (name) VALUES
+(Action),(Comedy),(Drama),(Horror),(Science Fiction),(Thriller),(Romance),(Fantasy),(Documentary),(Animation),(Crime),(Adventure)"""
+table_director="""
+CREATE TABLE IF NOT EXISTS directors (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT UNIQUE NOT NULL
+);"""
+insert_into_director="""
+INSERT INTO directors (name) VALUES
+(Francis Ford Coppola),(Christopher Nolan),(Quentin Tarantino),(Steven Spielberg),(Martin Scorsese),(James Cameron),(Ridley Scott),(Alfred Hitchcock),(Greta Gerwig ),(Peter Jackson)"""
 create_table="""
 CREATE TABLE IF NOT EXISTS movies (
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-title TEXT NOT NULL,
-director TEXT,
-release_year INTEGER,
-genre TEXT,
-duration INTEGER,
-rating REAL,
-language TEXT,
-country TEXT,
-description TEXT
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  director_id INTEGER,
+  release_year INTEGER,
+  genre_id INTEGER,
+  duration INTEGER,
+  rating REAL,
+  language_id INTEGER,
+  country_id INTEGER,
+  description TEXT,
+  FOREIGN KEY (director_id) REFERENCES directors(id),
+  FOREIGN KEY (genre_id) REFERENCES genres(id),
+  FOREIGN KEY (language_id) REFERENCES languages(id),
+  FOREIGN KEY (country_id) REFERENCES countries(id)
 );
 """
-insert_into="""INSERT INTO movies (title, director, release_year, genre, duration, rating, language, country, description) VALUES
-('The From In With.', 'Francis Ford Coppola', 1994, 'Drama', 142, 9.3, 'English', 'USA', 'The In With By On. A In From By The At. On A With By By On To A.'),
-('The By On To.', 'Christopher Nolan', 2010, 'Sci-Fi', 148, 8.8, 'English', 'UK', 'The A The On The In. By To A At On The. From The In With At In To A.'),
-('In The With On.', 'Quentin Tarantino', 1972, 'Crime', 175, 9.2, 'English', 'USA', 'On From The By At The A. In From By With To On. A The By In With At On To A.'),
-('The A To From.', 'Steven Spielberg', 1994, 'Adventure', 154, 8.9, 'English', 'France', 'With By In The A On. The With To A At The From. On A From With At By The.'),
-('On The From With.', 'Martin Scorsese', 2008, 'Action', 152, 9.0, 'English', 'Germany', 'The A By On In The. At With To A From On The. With On By The A In To From.'),
-('From The By With.', 'Christopher Nolan', 1960, 'Drama', 134, 8.5, 'English', 'UK', 'The A On From The At. With To By In A The On. At The In From With By To A.'),
-('The By On A.', 'Francis Ford Coppola', 1999, 'Thriller', 112, 7.8, 'English', 'USA', 'A The On By In The At. From With A On By To The. In The By With At A From.'),
-('On A The From.', 'Quentin Tarantino', 2015, 'Comedy', 126, 7.9, 'English', 'Italy', 'By With A On In The From. The By At A With On To. At In The By From With A.'),
-('By The On From.', 'Steven Spielberg', 1975, 'Action', 143, 8.7, 'English', 'France', 'A With On The By From In. The A At On With To From. By In The A From With At On.'),
-('From With The By.', 'Martin Scorsese', 1980, 'Crime', 163, 9.1, 'English', 'Germany', 'On The A By In The From. With By On A The In From. To The In At By With On A.');"""
+insert_into="""
+INSERT INTO movies (title, director, release_year, genre, duration, rating, language, country, description) VALUES
+('The From In With.', 1, 1994, 3, 142, 9.3, 1, 1, 'The In With By On. A In From By The At. On A With By By On To A.'),
 
-def create_tabel():
+('The By On To.', 2, 2010, 5, 148, 8.8, 1, 2, 'The A The On The In. By To A At On The. From The In With At In To A.'),
+
+('In The With On.', 3, 1972, 11, 175, 9.2, 1, 1, 'On From The By At The A. In From By With To On. A The By In With At On To A.'),
+
+('The A To From.', 4, 1994, 12, 154, 8.9, 1, 7, 'With By In The A On. The With To A At The From. On A From With At By The.'),
+
+('On The From With.', 5, 2008, 1, 152, 9.0, 1, 6, 'The A By On In The. At With To A From On The. With On By The A In To From.'),
+
+('From The By With.', 2, 1960, 3, 134, 8.5, 1, 2, 'The A On From The At. With To By In A The On. At The In From With By To A.'),
+
+('The By On A.', 1, 1999, 6, 112, 7.8, 1, 1, 'A The On By In The At. From With A On By To The. In The By With At A From.'),
+
+('On A The From.', 3, 2015, 2, 126, 7.9, 1, 9, 'By With A On In The From. The By At A With On To. At In The By From With A.'),
+
+('By The On From.', 4, 1975, 1, 143, 8.7, 1, 7, 'A With On The By From In. The A At On With To From. By In The A From With At On.'),
+
+('From With The By.', 5, 1980, 11, 163, 9.1,1, 6, 'On The A By In The From. With By On A The In From. To The In At By With On A.');"""
+
+def create_table():
     try:
         conn = sqlite3.connect('movies.db')
         cursor = conn.cursor()
         print("Ühendus loodud")
 
         cursor.execute(create_table)
+        print("Tabel loodud")
+    except sqlite3.Error as error:
+        print("Tekkis viga andmebaasiga ühendamisel:", error)
+    finally:
+        if conn:
+            conn.close()
+def table_languages():
+    try:
+        conn = sqlite3.connect('movies.db')
+        cursor = conn.cursor()
+        print("Ühendus loodud")
+
+        cursor.execute(table_languages)
+        print("Tabel loodud")
+    except sqlite3.Error as error:
+        print("Tekkis viga andmebaasiga ühendamisel:", error)
+    finally:
+        if conn:
+            conn.close()
+def table_countries():
+    try:
+        conn = sqlite3.connect('movies.db')
+        cursor = conn.cursor()
+        print("Ühendus loodud")
+
+        cursor.execute(table_countries)
+        print("Tabel loodud")
+    except sqlite3.Error as error:
+        print("Tekkis viga andmebaasiga ühendamisel:", error)
+    finally:
+        if conn:
+            conn.close()
+def table_genre():
+    try:
+        conn = sqlite3.connect('movies.db')
+        cursor = conn.cursor()
+        print("Ühendus loodud")
+
+        cursor.execute(table_genres)
+        print("Tabel loodud")
+    except sqlite3.Error as error:
+        print("Tekkis viga andmebaasiga ühendamisel:", error)
+    finally:
+        if conn:
+            conn.close()
+def table_director():
+    try:
+        conn = sqlite3.connect('movies.db')
+        cursor = conn.cursor()
+        print("Ühendus loodud")
+
+        cursor.execute(table_director)
         print("Tabel loodud")
     except sqlite3.Error as error:
         print("Tekkis viga andmebaasiga ühendamisel:", error)
@@ -126,8 +224,101 @@ def clear_entries():
     for entry in entries.values():
         entry.delete(0, tk.END)
     load_data_from_db(tree, search_query="")
+def add_language():
+    def save():
+        global entries
+        try:
+            conn = sqlite3.connect('movies.db')
+            cursor = conn.cursor()
+            language = Entry_languages.get()
+            if language:
+                cursor.execute("insert or ignore into languages (name) values (?)", (language,))
+                conn.commit()
+                top.destroy()
+        except sqlite3.Error as error:
+            print("An error occurred when connecting to the database:", error)
+        finally:
+            if conn:
+                conn.close()
+    top = Toplevel(root)
+    top.title("Add language")
 
-create_tabel()
+    Label(top, text="Language:").pack(pady=5)
+    Entry_languages = Entry(top)
+    Entry_languages.pack(pady=5)
+    Button(top, text="Save", command=save).pack(pady=10)
+def add_country():
+    def save():
+        global entries
+        try:
+            conn = sqlite3.connect('movies.db')
+            cursor = conn.cursor()
+            country = Entry_country.get()
+            if country:
+                cursor.execute("insert or ignore into languages (name) values (?)", (country,))
+                conn.commit()
+                top.destroy()
+        except sqlite3.Error as error:
+            print("An error occurred when connecting to the database:", error)
+        finally:
+            if conn:
+                conn.close()
+    top = Toplevel(root)
+    top.title("Add country")
+
+    Label(top, text="Country:").pack(pady=5)
+    Entry_country = Entry(top)
+    Entry_country.pack(pady=5)
+    Button(top, text="Save", command=save).pack(pady=10)
+def add_genre():
+    def save():
+        global entries
+        try:
+            conn = sqlite3.connect('movies.db')
+            cursor = conn.cursor()
+            genre = Entry_genre.get()
+            if genre:
+                cursor.execute("insert or ignore into languages (name) values (?)", (genre,))
+                conn.commit()
+                top.destroy()
+        except sqlite3.Error as error:
+            print("An error occurred when connecting to the database:", error)
+        finally:
+            if conn:
+                conn.close()
+    top = Toplevel(root)
+    top.title("Add country")
+
+    Label(top, text="Country:").pack(pady=5)
+    Entry_genre = Entry(top)
+    Entry_genre.pack(pady=5)
+    Button(top, text="Save", command=save).pack(pady=10)
+def add_director():
+    def save():
+        global entries
+        try:
+            conn = sqlite3.connect('movies.db')
+            cursor = conn.cursor()
+            director = Entry_director.get()
+            if director:
+                cursor.execute("insert or ignore into languages (name) values (?)", (director,))
+                conn.commit()
+                top.destroy()
+        except sqlite3.Error as error:
+            print("An error occurred when connecting to the database:", error)
+        finally:
+            if conn:
+                conn.close()
+    top = Toplevel(root)
+    top.title("Add country")
+
+    Label(top, text="Country:").pack(pady=5)
+    Entry_director = Entry(top)
+    Entry_director.pack(pady=5)
+    Button(top, text="Save", command=save).pack(pady=10)
+
+
+create_table()
 täida_tabel()
 # loe_tabel("movies")
 
@@ -301,6 +492,9 @@ def on_delete():
                 messagebox.showerror("Viga", f"Andmebaasi viga: {e}")
     else:
         messagebox.showwarning("Valik puudub", "Palun vali kõigepealt rida!")
+
+
+
 
 root = tk.Tk()
 root.title("Filmid")
