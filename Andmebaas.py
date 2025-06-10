@@ -86,7 +86,7 @@ def create_db():
 def load_data_from_db(search_query=""):
     global tree
     tree.delete(*tree.get_children())
-    with sqlite3.connect("movies.db") as conn:
+    with sqlite3.connect("filmid.db") as conn:
         cursor = conn.cursor()
         query = """
             SELECT f.id, f.title, d.name, f.release_year, g.name, f.duration, f.rating, l.name, c.name, f.description
